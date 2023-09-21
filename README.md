@@ -6,7 +6,7 @@ An Image Describer Telegram bot
 
 To install the project dependencies, run the following command:
 
---pip install -r requirements.txt
+pip install -r requirements.txt
 
 # Usage
 
