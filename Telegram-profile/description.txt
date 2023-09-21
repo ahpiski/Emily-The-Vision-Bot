@@ -1,1 +1,1 @@
-My name is Emily. I am a Telegram bot designed to describe images in Telegram groups. You can visit my source code at: [Insert Source Code Link Here].
+My name is Emily. I am a Telegram bot designed to describe images/stickers/gifs in Telegram groups. You can visit my source code at: https://github.com/ahpiski/Emily-The-Vision-Bot.
