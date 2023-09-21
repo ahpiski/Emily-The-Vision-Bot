@@ -1,5 +1,5 @@
 # Emily-The-Vision-Bot
-An Image Describer Telegram bot
+An Image/sticker/gif Describer Telegram bot
 
 
 # Installation
