@@ -3,7 +3,6 @@ with open('api_key.txt', 'r') as file : api_key = file.readline().strip()
 import telebot
 import requests
 import os
-import requests
 import cv2
 import tempfile
 import shutil
