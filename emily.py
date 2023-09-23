@@ -25,7 +25,6 @@ def add_id_to_database(database_name, id_to_add):
         conn.execute("PRAGMA journal_mode=WAL;")
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS ids (id INTEGER PRIMARY KEY);")
-        print(id_to_add)
         cursor.execute("INSERT INTO ids (id) VALUES (?);", (id_to_add,))
         conn.commit()
         conn.close()
@@ -88,23 +87,29 @@ def get_file_url(message , content_type):
 @bot.message_handler(func=lambda message: True)
 def check_ignore(message):
         text = ''.join(message.text.split()).lower()
-        print(text)
-
+        if ("emilydontignoreme" in text and check_id_in_database('ignoredb' , message.from_user.id)) :
+            remove_id_from_database("ignoredb" , message.from_user.id)
+            bot.reply_to(message , "ok , I will not ignore you !")
+        if ("emilyignoreme" in text and not check_id_in_database('ignoredb' , message.from_user.id)) :
+            add_id_to_database("ignoredb" , message.from_user.id)
+            bot.reply_to(message , "ok , I will ignore you !")
 
 @bot.message_handler(content_types=['photo'])
-def handle_photo(message):
-    bot.send_chat_action(message.chat.id, 'typing')
-    if(check_id_in_database('ignoredb', message.from_user.id)) : pass
-    bot.reply_to(message, describe_image(get_file_url(message , 'photo')))
+def handle_photo(message): 
+    if(not check_id_in_database('ignoredb', message.from_user.id)) :
+        bot.send_chat_action(message.chat.id, 'typing')
+        bot.reply_to(message, describe_image(get_file_url(message , 'photo')))
 
 
 @bot.message_handler(content_types=['sticker'])
 def handle_sticker(message):
-    bot.send_chat_action(message.chat.id, 'typing')
-    bot.reply_to(message, describe_image(get_file_url(message , 'sticker')))
+    if(not check_id_in_database('ignoredb', message.from_user.id)) :
+        bot.send_chat_action(message.chat.id, 'typing')
+        bot.reply_to(message, describe_image(get_file_url(message , 'sticker')))
     
 @bot.message_handler(content_types=['animation'])
 def handle_animation(message):
+    if(not check_id_in_database('ignoredb', message.from_user.id)) :
         bot.send_chat_action(message.chat.id, 'typing')
         try:
             # Create a temporary directory
