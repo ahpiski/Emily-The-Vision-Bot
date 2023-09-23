@@ -7,6 +7,59 @@ import cv2
 import tempfile
 import shutil
 import warnings
+import sqlite3
+
+try:
+    conn = sqlite3.connect('ignoredb')
+    conn.execute("PRAGMA journal_mode=WAL;")
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS ids (id INTEGER PRIMARY KEY);")
+    conn.close()
+except sqlite3.Error as e:
+    print(f"Error: {e}")
+    exit()
+
+def add_id_to_database(database_name, id_to_add):
+    try:
+        conn = sqlite3.connect(database_name)
+        conn.execute("PRAGMA journal_mode=WAL;")
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS ids (id INTEGER PRIMARY KEY);")
+        print(id_to_add)
+        cursor.execute("INSERT INTO ids (id) VALUES (?);", (id_to_add,))
+        conn.commit()
+        conn.close()
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+
+def remove_id_from_database(database_name, id_to_remove):
+    try:
+        conn = sqlite3.connect(database_name)
+        conn.execute("PRAGMA journal_mode=WAL;")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM ids WHERE id = ?;", (id_to_remove,))
+        conn.commit()
+        conn.close()
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+
+def check_id_in_database(database_name, id_to_check):
+    try:
+        conn = sqlite3.connect(database_name)
+        conn.execute("PRAGMA journal_mode=WAL;")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM ids WHERE id = ?;", (id_to_check,))
+        result = cursor.fetchone()
+        conn.close()
+        if result:
+            return True
+        else:
+            return False
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+        return False
+
+
 
 warnings.filterwarnings("ignore")
 bot = telebot.TeleBot(api_key, parse_mode=None)
@@ -32,9 +85,16 @@ def get_file_url(message , content_type):
     url = f'https://api.telegram.org/file/bot{bot.token}/{file_path}'
     return url
 
+@bot.message_handler(func=lambda message: True)
+def check_ignore(message):
+        text = ''.join(message.text.split()).lower()
+        print(text)
+
+
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
     bot.send_chat_action(message.chat.id, 'typing')
+    if(check_id_in_database('ignoredb', message.from_user.id)) : pass
     bot.reply_to(message, describe_image(get_file_url(message , 'photo')))
 
 
